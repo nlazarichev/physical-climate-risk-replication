@@ -1,4 +1,4 @@
-\documentclass[12pt]{letter}
+\documentclass[11pt]{article}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -7,133 +7,233 @@
 
 \begin{document}
 
-\begin{letter}{Editor-in-Chief and Associate Editor Prof.~Chong Xu\\
-\textit{Natural Hazards Research}}
+\noindent May 11, 2026
 
-\opening{Dear Prof.~Xu and Reviewers,}
+\noindent Editor-in-Chief and Associate Editor Prof.~Chong Xu \\
+Natural Hazards Research
 
-We thank the editor and all three reviewers for their careful reading of our manuscript, ``A duration-dependent flood depth-damage function calibrated using FEMA NFIP claims from three U.S.\ hurricanes.'' We have revised the manuscript thoroughly in response to all comments. Below we respond to each reviewer point-by-point. All line numbers refer to the revised manuscript.
+\bigskip
 
-% ─────────────────────────────────────────────────────────────────────────────
+\noindent Dear Prof.~Xu and reviewers,
+
+\medskip
+
+We thank the editor and the three reviewers for their careful reading of our manuscript NHRES-D-26-00101, ``A duration-dependent flood depth-damage function calibrated using FEMA NFIP claims from three U.S.\ hurricanes''. We have revised the manuscript thoroughly in response to all comments. Below we respond to each reviewer point-by-point. All section references refer to the revised manuscript; new or substantially revised passages are marked in \textbf{blue} in the revised PDF.
+
 \section*{Response to Reviewer 1}
-% ─────────────────────────────────────────────────────────────────────────────
 
-Reviewer~1 raises a fundamental concern: that the event-level flood duration $\tau$ is not the same quantity as the local inundation duration experienced by an individual property, and therefore that our model cannot claim to capture the causal mechanism of duration-dependent damage.
-
-We appreciate the precision of this critique and agree with the conceptual distinction. We address it as follows.
+Reviewer~1 raises four interrelated concerns about whether event-level flood duration is a physically meaningful and operationally usable model input. We address each in turn. The empirical signal in 295,637 validated claims across three events with an 8-times range in event-level $\tau$ is, in our view, informative, but we now state the limitations of the proxy explicitly and provide concrete guidance for future use.
 
 \subsection*{R1.1: Event-level $\tau$ vs.\ property-level inundation duration}
 
-\textbf{Reviewer comment:} ``The $\tau$ parameter assigned in the paper is an event-level estimate\ldots not the actual inundation duration at each property. This conflation undermines the causal interpretation.''
+\textbf{Reviewer comment:} ``While the study attempts to incorporate duration, it defines duration at the event level rather than at the local inundation scale, which is the physically meaningful parameter. Local inundation time varies spatially within a floodplain and directly affects damage processes, whereas total event duration does not adequately represent local exposure conditions.''
 
-\textbf{Response:} We fully agree that event-level $\tau$ is a proxy, not a direct measurement, and we have strengthened the language throughout the revised manuscript to make this clear.
+\textbf{Response:} We agree that event-level $\tau$ is a proxy, not a direct measurement, and we have strengthened the language throughout the revised manuscript to make this clear.
 
-In the revised Discussion (Section~7) and Conclusion (Section~8), we now state explicitly:
+In the revised Discussion (Section~7, Limitations) and Conclusion (Section~8, Duration assignment paragraph) we now state explicitly:
 \begin{quote}
-``Event-level $\tau$ is a proxy for local inundation duration\ldots actual water-contact time varies substantially within a single flood event, driven by local topography, drainage infrastructure, and distance from the flood source. Our calibration captures \textit{inter-event} duration variation across events spanning an 8 times range in $\tau$, but cannot resolve \textit{intra-event} heterogeneity.''
+\textit{``The duration parameter $\tau$ in the current calibration is an event-level proxy, not a property-level observation. Event-level $\tau$ aggregates over substantial intra-event heterogeneity: during Harvey, for instance, FEMA flood extent reports indicate that some areas experienced inundation lasting fewer than 72\,h while others exceeded 14\,days. Our three calibration events span an 8 times range in event-level $\tau$ (36--288\,h), which supports identification of the inflection-shift parameter $\lambda_a$, but the model is not validated at sub-event spatial resolution.''}
 \end{quote}
 
-However, we respectfully maintain that this limitation does not invalidate the empirical result. The three calibration events were selected precisely because they differ dramatically in event-level duration: Sandy ($\tau \approx 36$\,h) was a fast-moving tidal surge; Harvey ($\tau \approx 288$\,h) was an unprecedented multi-week rainfall event; Katrina ($\tau \approx 120$\,h) involved slower levee-breach flooding. The $8\times$ range in event-level $\tau$ is large enough to produce statistically significant identification of $\lambda_a$, as shown by the leave-one-out cross-validation (Table~4). The 295,637 claims spanning these three events provide strong aggregate evidence that damage ratios at a given depth are systematically different across the three events, and event-level $\tau$ is the primary observable that discriminates them.
+The direct measurement alternative --- property-level inundation duration --- is not available in the current OpenFEMA v2 schema at scale (a targeted audit of 50{,}000 raw claims per event found effectively no positive \texttt{floodWaterDuration} values in the Sandy, Harvey, and Katrina extracts). Until spatially resolved flood-recession data are linked to large historical claim datasets, event-level $\tau$ is the best feasible proxy.
 
-The direct measurement alternative --- property-level inundation duration --- is not available in the current OpenFEMA v2 schema at scale (targeted audit of 50,000 claims per event found effectively no positive \texttt{floodWaterDuration} values). Until spatially resolved flood recession data are available for large historical claim datasets, event-level $\tau$ represents the best feasible proxy.
+\subsection*{R1.2: Confounding of $\tau$ with depth, velocity, and event-specific covariates}
 
-\subsection*{R1.2: Machine-learning alternative with depth, velocity, and local duration}
+\textbf{Reviewer comment:} ``Similar-duration events can produce very different flood characteristics (depth, velocity, spatial extent)\ldots\ attributing increased damage to event duration may actually reflect indirect effects of depth and velocity distributions, rather than duration itself.''
 
-\textbf{Reviewer comment:} ``A more defensible approach would use ML with depth, velocity, and local duration as features.''
+\textbf{Response:} We have added an explicit ``Identification of $\tau$ vs.\ confounded covariates'' paragraph to the revised Discussion (Section~7). The fitted $\lambda_a = 0.49$ is read as the partial effect of $\tau$ \textit{conditional on depth bins}, not as orthogonal to event-specific construction-quality and exposure-mix differences. We mitigate the concern in three ways: (i)~calibration is performed on binned depth-damage data (12 bins per event) so that within-bin depth variation is absorbed; (ii)~the USACE instantaneous anchor (weight $w = 3$) pins the $\tau = 0$ end of the curve to a duration-independent reference; and (iii)~the leave-one-event-out test (Table~5) shows that the duration coefficient extrapolates to a held-out event, which would not occur if $\lambda_a$ were absorbing only event-specific noise.
 
-\textbf{Response:} We agree that an ML approach with richer features would likely improve individual-claim prediction accuracy. We show in Section~5.4 (feature enrichment analysis, Table~7) that gradient boosting with all available NFIP features (occupancy, floors, basement, etc.) reduces MAE by only 11.7\% relative to the depth-only Richards model, with depth accounting for 74\% of feature importance. This confirms that the data available in NFIP claims have limited additional predictive power beyond depth, even when ML is used.
+A fully causal identification would require pairing claims with hydraulic-model output containing depth, velocity, and local recession time at the property level; this is the natural next step but is not feasible at the current NFIP scale.
 
-Velocity and property-level duration --- the two features Reviewer~1 identifies --- are not available in the NFIP dataset at claim level. Incorporating them would require linking each claim to a hydraulic simulation output, which is beyond the scope of the current paper and would substantially reduce the available calibration sample. We have noted this as a direction for future work in the revised Conclusion.
+\subsection*{R1.3: Predictive use and how to assign $\tau$ for future events}
 
-We respectfully therefore maintain that the parametric Richards formulation is appropriate for the available data, while the ML with richer features suggestion is a valuable direction for future work when richer hazard data become available.
+\textbf{Reviewer comment:} ``The framework does not provide a mechanism to apply the duration parameter in predictive modelling unless similar event-level descriptors are known, which reduces its usability in practice.''
 
-% ─────────────────────────────────────────────────────────────────────────────
+\textbf{Response:} We have added a ``Predictive use and how to assign $\tau$ in practice'' paragraph to the revised Discussion (Section~7). In the practitioner workflow underlying our ADM and 24-company applications, $\tau$ is read from one of three sources, in decreasing order of preference: (a)~gauge-based flood-recession curves (e.g.\ NOAA AHPS or USGS streamflow records) integrated above the floor elevation of the asset; (b)~hydrodynamic simulation output (e.g.\ HEC-RAS, LISFLOOD); or (c)~a literature/event-report estimate of typical inundation duration for the relevant flood archetype (storm surge, riverine, pluvial). The framework does not require future events to match the calibration events; it only requires that an event-scale $\tau$ value can be assigned. We recommend bounding $\tau \in [24,720]$\,h and reporting damage estimates at $\tau$ and $\tau \pm 50\%$ when the duration estimate is uncertain.
+
+To make this concrete, we have added Section~5.5 (Sensitivity to the $\tau$ assignment) that propagates $\tau \pm 50\%$ through the ADM facility-cluster pipeline. The total gross CapEx span is approximately $280 \to 378$\,M\,USD ($-17\%$ to $+12\%$ around the $338$\,M\,USD baseline), comparable to the insurance-coverage sensitivity (Section~5.7) and substantially smaller than the cross-company validation dispersion (IQR 0.6--1.4$\times$). This concrete operational example demonstrates how a practitioner unsure of $\tau$ can convert that uncertainty into a defensible loss range.
+
+\subsection*{R1.4: Machine-learning alternative with depth, velocity, and local duration}
+
+\textbf{Reviewer comment:} ``Advanced machine learning models can be very helpful in this regard to integrate these three parameters [depth, velocity, local inundation time] in one model.''
+
+\textbf{Response:} We agree that an ML approach with richer features would likely improve individual-claim prediction accuracy, and we have added explicit acknowledgement in the revised Section~7: the depth-only Richards model and richer ML models leave a comparable irreducible noise floor of $\approx 0.22$ MAE at the claim level. Section~4.4 (feature enrichment, Table~8) shows that gradient boosting with all available NFIP features reduces MAE by only 11.7\% relative to the depth-only Richards model, with depth accounting for 74\% of feature importance.
+
+Velocity and property-level duration --- the two features Reviewer~1 highlights --- are not available in the NFIP dataset at claim level. Incorporating them would require linking each claim to a hydraulic-simulation output, which is beyond the scope of the current paper and would substantially reduce the available calibration sample. We have cited the recent ML/causal-ML flood-damage literature (Museru et al.\ 2024, 2025; Kordani et al.\ 2024) as a direction for future work when richer hazard data become available.
+
+We position the framework as a portfolio-screening tool conditional on the calibration's three event-level $\tau$ values; until property-level inundation data become widely available, this is the scope at which the duration extension is empirically supported.
+
 \section*{Response to Reviewer 2}
-% ─────────────────────────────────────────────────────────────────────────────
 
 We thank Reviewer~2 for the thorough and constructive review.
 
 \subsection*{R2.1: Additional citations (A through I)}
 
-\textbf{Response:} All nine references have been added to the manuscript. We cite them at contextually appropriate locations in the Related Work section (Section~2) and the Sector Adjustment subsection (Section~3.3):
-
+\textbf{Response:} All nine references have been added to the bibliography and cited at appropriate points in the revised Section~2 (Related Work):
 \begin{itemize}
-  \item \textbf{A} (Museru et al. 2025, STOTEN) and \textbf{B} (Museru et al. 2024, STOTEN): cited in the ``Calibration data gap'' paragraph of Section~2, alongside machine learning approaches to multi-variable flood damage estimation.
-  \item \textbf{I} (Kordani et al. 2024, J.\ Hydrol.\ Eng.): cited alongside A and B as an ensemble deep-learning flood forecasting study.
-  \item \textbf{C} (Nazari et al. 2022, NHR) and \textbf{E} (Sun et al. 2021, Appl.\ Sci.): cited in the new ``Flood risk across infrastructure sectors'' paragraph as applications to wastewater treatment facilities.
-  \item \textbf{F} (Fahad et al. 2020, WRM) and \textbf{G} (Fahad et al. 2022, RESS): cited in the same paragraph under coastal structures.
-  \item \textbf{D} (Motamedi et al. 2018, Eng.\ Struct.): cited under earthen infrastructure vulnerability.
-  \item \textbf{H} (Nazari et al. 2025, J.\ Clean.\ Prod.): cited as community-scale economic resilience analysis motivating the sector adjustment $\kappa$.
+  \item \textbf{A} Museru et al.\ 2025 (causal ML for flood damage estimation), cited in the ``Calibration data gap'' paragraph;
+  \item \textbf{B} Museru et al.\ 2024 (multivariable ML for residential damage), cited alongside (A);
+  \item \textbf{C} Nazari et al.\ 2022 and \textbf{E} Sun et al.\ 2021 (wastewater treatment plant flood risk), cited in the new ``Flood risk across infrastructure sectors'' paragraph;
+  \item \textbf{D} Motamedi et al.\ 2018 (earthen-structure resilience), cited in the same paragraph;
+  \item \textbf{F} Fahad et al.\ 2020 and \textbf{G} Fahad et al.\ 2022 (coastal-structure resilience and decision frameworks), cited in the same paragraph;
+  \item \textbf{H} Nazari et al.\ 2025 (community-scale economic resilience), cited as the link between asset-level damage and community-scale resilience;
+  \item \textbf{I} Kordani et al.\ 2024 (ensemble DL flood forecasting), cited alongside (A,B) as evidence for ML approaches in the broader flood modelling pipeline.
 \end{itemize}
 
-\subsection*{R2.2: Cautious language on the inflection-only conclusion}
+\subsection*{R2.2: Cautious language on the ``exclusively'' inflection-only claim}
 
-\textbf{Reviewer comment:} ``The conclusion that duration operates \textit{exclusively} through inflection point shift may be overstated given that the calibration uses only three event-level $\tau$ values.''
+\textbf{Reviewer comment:} ``The conclusion that duration effects operate exclusively through inflection point shift may be overgeneralized and should be interpreted more cautiously.''
 
-\textbf{Response:} We agree. We have replaced ``exclusively'' with ``primarily'' in the Introduction and revised the Conclusion to add the following caveat (Section~8, Finding 1):
+\textbf{Response:} We agree. We have replaced ``exclusively'' with ``primarily'' in the Introduction (Contribution~1), Section~4.2, the Discussion summary, and the Conclusion. The Conclusion (Section~8, Finding~1) now adds the caveat:
 \begin{quote}
-``\ldots the duration-modifying coefficients $\lambda_Q \approx 0$ and $\delta_\nu \approx 0$ are not significantly non-zero in the three-event calibration, suggesting that shape modification may be secondary to inflection shift for these hurricane events, though this conclusion is limited by the small number of distinct $\tau$ values available.''
+\textit{``\ldots the duration-modifying coefficients $\lambda_Q \approx 0$ and $\delta_\nu \approx 0$ are not significantly non-zero in the three-event calibration, suggesting that shape modification may be secondary to inflection shift for these hurricane events, though this conclusion is limited by the small number of distinct $\tau$ values available.''}
 \end{quote}
 
-\subsection*{R2.3: Binning sensitivity}
+\subsection*{R2.3: Calibration sensitivity to binning choices and parameter uncertainty}
 
-\textbf{Response:} Added. Section~5.2 (Test~2) now includes a binning sensitivity check: recalibrating with 8 and 16 bins per event changes calibrated parameters by less than 3\% and Harvey MAE by less than 0.005, confirming robustness.
+\textbf{Reviewer comment:} ``The calibration methodology is appropriate, but sensitivity to binning choices and uncertainty in parameter estimates should be more explicitly discussed.''
 
-\subsection*{R2.4: Single-$\tau$ limitation}
+\textbf{Response:} Both have been added.
 
-\textbf{Response:} Strengthened in Introduction (Contribution~1), Discussion (Limitations), and Conclusion (Duration assignment paragraph). The limitation that only three distinct $\tau$ values are available is now stated prominently in all three locations.
+\textit{Binning sensitivity:} Section~4.3 (Test~2: Within-event stability and binning sensitivity) now reports that recalibrating with 8 and 16 bins per event (minimum 10 claims per bin enforced) changes the calibrated parameters by less than 3\% and the Harvey MAE by less than 0.005, confirming that the key results are not artefacts of the 12-bin choice.
 
-\subsection*{R2.5: $\kappa$ uncertainty}
+\textit{Parameter uncertainty:} A new ``Parameter uncertainty'' paragraph in Section~7 reports a bootstrap analysis (200~replicates over the binned calibration sample, perturbing each bin mean by a Gaussian draw with the bin standard error and re-optimising). Across all replicates, $\lambda_a$ is positive and bounded away from zero, while $\lambda_Q$ and $\delta_\nu$ remain close to zero, confirming that the inflection-shift conclusion is robust to within-sample resampling. The Limitations paragraph nonetheless flags that having only three distinct event-level $\tau$ values is the binding constraint on uncertainty quantification, and that full bootstrap-replicate outputs are available in the reproducibility code.
 
-\textbf{Response:} A new paragraph was added to Section~3.3 (Sector Adjustment) quantifying $\kappa$ uncertainty via bootstrap resampling: 90\% CI $\approx \pm 0.06$ on $\kappa_{\text{total}}$, or $\pm$30\% relative. This is substantially smaller than the cross-company variability in the 24-company validation, indicating that individual asset factors dominate over parameter estimation error.
+\subsection*{R2.4: Single $\tau$ per event and three-event calibration}
 
-\subsection*{R2.6: OpEx justification}
+\textbf{Reviewer comment:} ``The calibration relies on only three hurricane events\ldots\ The assignment of a single representative duration per event is a strong simplification.''
 
-\textbf{Response:} Added an empirical motivation paragraph to Section~3.3 (Indirect Losses): ``Post-disaster assessments consistently find that business interruption accounts for 15--40\% of total corporate flood losses~\cite{hallegatte2015indirect, hallegatte2010economics}, a share that rises for concentrated single-site operations\ldots''
+\textbf{Response:} This limitation is now stated prominently in three locations: the Introduction (Contribution~1), the Discussion Limitations paragraph, and the Conclusion (Duration assignment paragraph). The number of distinct $\tau$ values, the within-event spatial heterogeneity, and the consequent ceiling on identifiability of higher-order duration effects ($\lambda_Q$, $\delta_\nu$) are all explicitly acknowledged.
 
-% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{R2.5: $\kappa$ extrapolation uncertainty and validation}
+
+\textbf{Reviewer comment:} ``The sector adjustment factor ($\kappa$), while data-driven, depends on extrapolation to corporate-scale assets, which lacks direct validation and introduces uncertainty that should be more clearly acknowledged.''
+
+\textbf{Response:} Section~3.3 now includes a dedicated ``Uncertainty in $\kappa$'' paragraph. The within-cell estimation variance is reported as $\kappa_{\text{std}}$ in the $\kappa$ table (range 0.05--0.32). Bootstrap resampling of the 82{,}650 non-residential claims (1{,}000 replications) gives a 90\% CI of $\pm 0.06$ on $\kappa_{\text{total}}$ for the main corporate-scale cell (1-storey, $>$\$500\,K), or $\pm 30\%$ relative uncertainty. We further state explicitly that the corporate-scale extrapolation ($\rho_{\text{gradient}} = 0.25$) is necessarily beyond the NFIP coverage band and cannot be validated within the calibration sample; the 24-event out-of-sample test (Section~6, median ratio $0.90\times$) provides indirect evidence that the extrapolated $\kappa_{\text{total}}$ values are not systematically biased.
+
+\subsection*{R2.6: ICR-based credit translation simplifications}
+
+\textbf{Reviewer comment:} ``The credit risk translation using the ICR-based approach is relatively simplified and may not capture firm-specific financial dynamics, insurance structures, or adaptive strategies.''
+
+\textbf{Response:} Section~3.4 (Credit Risk Translation) now states explicitly:
+\begin{quote}
+\textit{``The ICR-based translation does not capture firm-specific financial dynamics beyond the EBIT-to-interest ratio (e.g., insurance recovery schedules, covenant structures, or adaptive strategies such as hedging and rapid asset disposal); extending the credit module to include these factors is a natural direction for future work.''}
+\end{quote}
+We have also reiterated that the framework is \textit{modular}: more sophisticated credit models (Merton structural model, multi-ratio logistic regression, ML approaches) can be substituted for the ICR module without affecting the upstream damage assessment.
+
+\subsection*{R2.7: Depth dominance vs.\ duration value at portfolio scale}
+
+\textbf{Reviewer comment:} ``Results suggest that flood depth remains the dominant predictor, with duration providing additional value primarily at aggregated or portfolio scales, which should be clarified in the discussion.''
+
+\textbf{Response:} A new paragraph at the start of Section~7 makes this point explicit:
+\begin{quote}
+\textit{``Flood depth remains the dominant predictor of damage at the individual-claim level (74\% of gradient boosting feature importance; Table~8), and the duration extension adds predictive value primarily at the aggregated and portfolio scale. [\ldots] The practical implication is that the duration-dependent formulation is best suited to event-level screening and portfolio risk ranking, which is the use case this paper targets, rather than individual asset loss estimation.''}
+\end{quote}
+
+\subsection*{R2.8: OpEx empirical justification}
+
+\textbf{Reviewer comment:} ``The OpEx modeling framework appears somewhat assumption-driven and would benefit from stronger empirical justification or sensitivity analysis.''
+
+\textbf{Response:} Section~3.3 (Indirect losses) now opens with empirical motivation:
+\begin{quote}
+\textit{``Post-disaster assessments consistently find that business interruption accounts for 15--40\% of total corporate flood losses (Hallegatte 2010, 2015), a share that rises for companies with concentrated single-site operations or complex supply chains. Ignoring OpEx therefore produces a systematic downward bias in event-scale credit risk estimates for the most exposed companies.''}
+\end{quote}
+The OpEx-to-CapEx ratio formulation and the geometric-decay recovery profile are unchanged but now explicitly grounded in this evidence base.
+
+\subsection*{R2.9: Independent geographic validation}
+
+\textbf{Reviewer comment:} ``Validation is generally strong, but additional testing in independent geographic regions would further strengthen confidence in transferability.''
+
+\textbf{Response:} A new ``Geographic transferability'' paragraph in Section~6.4 makes the geographic spread of the validation set explicit. Although calibration uses only US claims, the 24-company validation spans five countries and three flood archetypes (US Gulf/Atlantic tropical-cyclone surge; Thailand monsoonal/industrial-park flooding; KZN South Africa subtropical convective storm; UK mid-latitude winter storm). Predicted-to-actual ratios are broadly consistent across regions, with the two regional sub-samples large enough for a meaningful comparison (US Harvey $n = 8$ median $1.2\times$; Thailand $n = 9$ median $0.7\times$), both well within the 0.4--2.5$\times$ acceptance band. We caution that the sample remains weighted toward heavy-industrial and electronics manufacturing exposures, and identify lighter commercial portfolios and non-OECD construction practices as targets for future testing.
+
 \section*{Response to Reviewer 3}
-% ─────────────────────────────────────────────────────────────────────────────
 
 We thank Reviewer~3 for the detailed technical review.
 
-\subsection*{R3.1: `?' markers in citations}
+\subsection*{R3.1: ``?'' markers in citations}
 
-\textbf{Response:} We have audited all \texttt{\textbackslash cite\{\}} and \texttt{\textbackslash ref\{\}} commands in the submitted version. No undefined labels or missing bibliography keys were found in compilation on our end. If the `?' markers appeared in the reviewer's PDF, they may reflect a compilation artefact on the journal server rather than a genuine missing reference. We have re-verified the complete bibliography and all cross-references in the revised version.
+\textbf{Response:} We re-audited every \texttt{\textbackslash cite\{\}} and \texttt{\textbackslash ref\{\}} command in the manuscript and recompiled the bibliography. No undefined references remain in our local compilation. We have re-checked all cross-references in the revised version and included \texttt{Common/bibliography.bib} with this submission so that the journal production system can compile it without ambiguity.
 
-\subsection*{R3.2: Literature gaps and depth+duration prior work}
+\subsection*{R3.2: Depth-and-duration prior work and broader literature}
 
-\textbf{Response:} The Related Work section (Section~2) has been substantially expanded. We now cite the depth+duration vulnerability model of Pandey et al.\ (2026, \textit{Water Resources Management}, DOI 10.1007/s11269-026-04500-x) explicitly as prior work formalising vulnerability and functionality-loss in the built environment incorporating both depth and duration. We also added citations to Pistrika et al.\ (2014, \textit{Environmental Processes}) for flood depth-damage functions for the built environment; Forte et al.\ (2025, \textit{Engineering Geology}) and Gautam et al.\ (2022, \textit{Natural Hazards}) for flood vulnerability and fragility; and four post-event field survey studies (Santangelo et al.\ 2021; Thapa et al.\ 2020; Santo et al.\ 2016; Chinh et al.\ 2016) that document flood damage mechanisms across different geographies. A new paragraph on ``Flood risk across infrastructure sectors'' provides broader context for the sector adjustment module $\kappa$.
+\textbf{Reviewer comment:} ``Although the authors claim that duration is missed by existing vulnerability frameworks, there exist some models dependent on both depth and duration, see e.g.\ 10.1007/s11269-026-04500-x.''
 
-\subsection*{R3.3: ``Intensity measure'' terminology}
+\textbf{Response:} Section~2 (Related Work, Depth-damage functions paragraph) now acknowledges this body of work and cites Pandey et al.\ (2026, \textit{Water Resources Management}, DOI 10.1007/s11269-026-04500-x) alongside Forte et al.\ (2025) and Gautam et al.\ (2022) as recent formalisations of depth-damage and probabilistic vulnerability/functionality-loss frameworks for the built environment. Earlier formalisations (Pistrika et al.\ 2014) and post-event field surveys documenting damage mechanisms (Santangelo et al.\ 2021; Thapa et al.\ 2020; Santo et al.\ 2016; Chinh et al.\ 2016) are now also cited. We rephrase our claim more carefully: it is the \textit{quantitative calibration of a duration-dependent parametric function on large-scale insurance claims data} that has been lacking, not awareness of the duration effect itself.
 
-\textbf{Response:} The first paragraph of Section~2 now reads: ``In the flood context, inundation depth is the dominant intensity measure and serves as the primary input to these functions~\cite{merz2010review, huizinga2017global}; other intensity measures such as flow velocity and inundation duration are secondary but can be material for specific flood types and asset classes.''
+\subsection*{R3.3: Component-level (global vs.\ nonstructural vs.\ content) vulnerability}
 
-\subsection*{R3.4: DF $\approx$ 0.19 at low depth in Fig.~3}
+\textbf{Reviewer comment:} ``In sector specific vulnerability, it is important to recognize global, nonstructural, and content vulnerability separately as losses would be uneven within building portfolios. Nonstructural component vulnerability models are also evolving, e.g.\ 10.1016/j.enggeo.2025.107988.''
 
-\textbf{Response:} This is mathematically correct, not an error. The Richards function approaches $\text{DF} = 0$ only as $h \to -\infty$; at $h = 0$ it takes a small positive value ($\approx 0.19$ for our calibrated parameters). We have added an explicit note to the Fig.~3 caption explaining this and stating that curves are plotted from $h_{\min} = 0.05$\,m.
+\textbf{Response:} Section~3.3 (Sector adjustment) now contains an explicit discussion of this point:
+\begin{quote}
+\textit{``The sector adjustment $\kappa$ as defined here is a single aggregate multiplier applied to the structural damage ratio. In practice, flood losses within a building portfolio are distributed unevenly across structural elements, non-structural components (MEP systems, partitions, finishes), and building contents (Forte et al.\ 2025). Non-structural and content losses can dominate total repair costs at moderate inundation depths, particularly for commercial and light-industrial buildings (Pistrika et al.\ 2014). Separating these components would require a more granular vulnerability model than the NFIP data can support at scale; we acknowledge this as a direction for future refinement.''}
+\end{quote}
 
-\subsection*{R3.5: Curves starting at $h = 0$ in Fig.~4 and Fig.~6}
+\subsection*{R3.4: ``Intensity measure'' terminology}
 
-\textbf{Response:} Fixed. Both figures have been regenerated starting at $h_{\min} = 0.05$\,m. The captions now state: ``Curves are plotted from $h_{\min} = 0.05$\,m; the Richards function is not defined to start at $h = 0$ because the minimum inundation threshold excludes negligible-depth events.''
+\textbf{Reviewer comment:} ``Intensity of hazard is referred to as `intensity measure'. Please correct. There are several batches of such measures and also there exist multivariate IMs.''
 
-\subsection*{R3.6: Missing brackets in $\mathbb{E}[\text{CL}]$ (Eq.~5)}
+\textbf{Response:} Adopted. Section~2 now opens with: \textit{``Depth-damage functions map a hazard intensity measure to a damage ratio\ldots\ In the flood context, inundation depth is the dominant intensity measure and serves as the primary input to these functions; other intensity measures such as flow velocity and inundation duration are secondary but can be material for specific flood types and asset classes.''} The framework discussion in Section~3.1 has also been aligned with this terminology.
 
-\textbf{Response:} Fixed throughout. The \texttt{\textbackslash ECL} macro has been updated to \texttt{\textbackslash mathbb\{E\}[\textbackslash text\{CL\}]} in the preamble, which propagates the correction to all occurrences in the manuscript.
+\subsection*{R3.5: DF $\approx$ 0.22 at very low $h$ in Fig.~3}
 
-\subsection*{R3.7: $\times$ $\to$ ``times'' in Conclusion}
+\textbf{Reviewer comment:} ``Please explain the occurrence of about 0.22 DF even at very low inundation depth in Fig.~3.''
 
-\textbf{Response:} Fixed. All multiplication signs in the Conclusion section have been replaced with the word ``times'' (e.g., ``2.6 times amplification'', ``8 times range'').
+\textbf{Response:} This reflects a property of the Richards function rather than an artefact: the function approaches DF $= 0$ only asymptotically as $h \to -\infty$, and at $h = 0$ it takes a small positive value (approximately 0.19 for the calibrated parameters; the reviewer's recollection of 0.22 corresponds to an earlier draft of the calibration). The Fig.~3 caption now states this explicitly:
+\begin{quote}
+\textit{``the Richards function approaches DF $= 0$ only asymptotically as $h \to -\infty$; at $h = 0$ the function takes a small positive value ($\approx 0.19$ for the calibrated parameters), reflecting the minimum-damage floor below which flooding is not practically relevant. Curves are plotted from $h_{\min} = 0.05$\,m.''}
+\end{quote}
 
-\subsection*{R3.8: Velocity not acknowledged}
+\subsection*{R3.6: Curves starting at $h = 0$ in Figs.~4 and 6}
 
-\textbf{Response:} Added a dedicated Limitations paragraph in both the Discussion (Section~7) and Conclusion (Section~8): ``This paper uses inundation depth and duration as the primary intensity measures. Flow velocity, which can contribute substantially to structural damage in riverine and coastal flood events, is not captured. For events where velocity is a major damage driver, the depth-only Richards formulation will underestimate damage, and an extension incorporating velocity would be needed.''
+\textbf{Reviewer comment:} ``Please do not start your curves at $h = 0$, otherwise the interpretation would be something like even if there is no flooding, DF of \ldots is expected.''
 
-\closing{We believe the revised manuscript addresses all reviewer concerns. We look forward to your further assessment.}
+\textbf{Response:} Both figures have been regenerated starting at $h_{\min} = 0.05$\,m. The captions now read: ``Curves are plotted from $h_{\min} = 0.05$\,m; the Richards function is not defined to start at $h = 0$ because the minimum inundation threshold excludes negligible-depth events.''
 
-\vspace{1em}
-Ivan Novikov, Nikita Lazarichev, and co-authors\\
-\textit{Corresponding author:} ivan.novikov@iccda.io
+\subsection*{R3.7: $\mathbb{E}[\mathrm{CL}]$ notation in Eq.~5}
 
-\end{letter}
+\textbf{Reviewer comment:} ``Eq.~5 (left side), please provide [] after expectation operator.''
+
+\textbf{Response:} Fixed throughout. The \texttt{\textbackslash ECL} macro in the preamble has been updated to \texttt{\textbackslash mathbb\{E\}[\textbackslash text\{CL\}]}, which propagates the correction to all occurrences in the manuscript.
+
+\subsection*{R3.8: $\times$ $\to$ ``times'' in Conclusion}
+
+\textbf{Reviewer comment:} ``Conclusion~1, instead of multiplication operator, please use `times'.''
+
+\textbf{Response:} Fixed. Conclusion Finding~1 now reads ``Duration increases flood damage by up to \textbf{2.6 times}'', and the same change has been propagated to the abstract, Section~4.2, the duration-curves caption, and the Discussion summary (``2.6 times damage amplification'', ``8 times range''). Multiplicative-ratio notations such as the validation $0.90\times$ remain in math mode, as that is the conventional reporting format for predicted/actual ratios.
+
+\subsection*{R3.9: Velocity not acknowledged}
+
+\textbf{Reviewer comment:} ``Please acknowledge that velocity is one of the most governing parameters to cause damage, which is not incorporated in the present study.''
+
+\textbf{Response:} A dedicated paragraph has been added in both the Discussion (Section~7, Limitations) and the Conclusion (Section~8, Hazard characterisation):
+\begin{quote}
+\textit{``This paper uses inundation depth and duration as the primary intensity measures. Flow velocity, which can contribute substantially to structural damage through hydrodynamic loading (drag $\propto v^2$ and momentum flux $h \cdot v^2$), is not captured. Engineering studies of flash-flood and torrential events report that velocity-driven loads can add 30--80\% to depth-only damage estimates at $v \gtrsim 2$\,m\,s$^{-1}$ (Santangelo et al.\ 2021; Fahad et al.\ 2020, 2022); for the slower, predominantly stagnant flooding that characterises Sandy, Harvey, and Katrina, typical velocities are below 1\,m\,s$^{-1}$ and the velocity contribution is materially smaller. For fast-moving riverine and dam-break floods, an extension incorporating velocity (as in Merz et al.\ 2010) or a multivariate intensity measure is recommended.''}
+\end{quote}
+
+\section*{Summary of structural changes}
+
+Beyond the point-by-point responses above, we have made two structural changes to the manuscript:
+
+\begin{enumerate}
+  \item The \textbf{Insurance coverage sensitivity} analysis has been moved from the Appendix into the main body as Section~5.7, immediately after the ADM application and the new $\tau$-sensitivity subsection, where it is most directly informative.
+  \item \textbf{All revisions are highlighted in blue} in the revised PDF using a \texttt{\textbackslash rev\{\}} macro defined in the preamble, so that reviewers can rapidly locate every change made in response to their comments.
+\end{enumerate}
+
+In addition, we have added a public reproducibility archive at\\
+\url{https://github.com/nlazarichev/physical-climate-risk-replication}\\
+that reproduces every Table and Figure in the manuscript end-to-end from the OpenFEMA data, including all sensitivity analyses introduced in this revision (Section~5.5 $\tau$-sensitivity, Section~5.7 insurance-coverage sensitivity, Section~6.4 geographic transferability, Section~7 bootstrap parameter uncertainty).
+
+The revised manuscript addresses all reviewer concerns. The reviewers' critique materially strengthened the framing of the limitations and the practical guidance for future use.
+
+\bigskip
+
+\noindent Sincerely,
+
+\noindent Ivan Novikov, Nikita Lazarichev, Denis Ayvazov, Aleksandr Popov, Yuriy Dorn, Roman Sultimov, Aleksandr Volkov, Andrey Osipsov, and Yury Maximov
+
+\medskip
+
+\noindent Corresponding author: Ivan Novikov, \href{mailto:ivan.novikov@iccda.io}{ivan.novikov@iccda.io}
+
 \end{document}
