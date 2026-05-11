@@ -1,0 +1,8 @@
+parameter,value,interpretation
+B,5.6473,Steepness of damage curve
+Q0,3.4502,Initial threshold asymmetry at tau=0
+a0,0.5417,Inflection point at tau=0
+nu0,2.6091,Derivative asymmetry at tau=0
+lambda_a,0.4893,Inflection shift rate with duration
+lambda_Q,0.0,Onset speed (duration modifier; not significantly non-zero)
+delta_nu,0.0,Asymmetry growth (duration modifier; not significantly non-zero)

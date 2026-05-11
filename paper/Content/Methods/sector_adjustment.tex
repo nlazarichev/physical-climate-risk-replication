@@ -1,0 +1,106 @@
+\paragraph{Sector adjustment}
+The damage function calibrated on residential insurance claims may not directly apply to commercial, industrial, or infrastructure assets, which differ in construction standards, equipment elevation, and operational resilience. We introduce a sector adjustment multiplier $\kappa$ such that:
+\begin{equation*}
+    \DF_{\text{sector}}(h, \tau) = \kappa \cdot \DF_{\text{residential}}(h, \tau)
+    %\label{eq: kappa}
+\end{equation*}
+where $\kappa \in (0, 1]$ reflects the relative vulnerability of a given asset class compared to residential buildings.
+
+Rather than calibrating $\kappa$ from a small number of corporate loss disclosures, we estimate it empirically from 82{,}650 NFIP non-residential claims (occupancy type~4 in the OpenFEMA schema) drawn from the same dataset used for the residential calibration. These claims carry the same fields---water depth, payout, and coverage---but insure commercial and light-industrial buildings rather than single-family homes.
+
+We group non-residential claims by two observable building characteristics:
+
+\begin{itemize}
+    \item \textbf{Number of stories} (1, 2, $\geq$3): a physical proxy for the fraction of the building above flood water. A one-storey commercial building is almost entirely submerged at 1.5\,m depth; a three-storey building has roughly two-thirds of its floor area above water.
+    \item \textbf{Insurance coverage band} ($<$\$50\,K, \$50--200\,K, \$200--500\,K, $>$\$500\,K): a proxy for building size, construction quality, and floor elevation. Larger insured values correlate with more robust construction and better site preparation.
+\end{itemize}
+
+For each (stories, coverage) cell and each depth bin $i$, we compute:
+
+\begin{equation*}
+    \kappa_{\text{claims},i}
+    \;=\;
+    \frac{\mathrm{median}\bigl(\mathrm{DR}_{\text{commercial},i}\bigr)}
+         {\DF_{\text{residential}}(h_i,\,\tau=0)}
+    %\label{eq: kappa claims}
+\end{equation*}
+where $h_i$ is the midpoint of depth bin~$i$. The cell-level $\kappa$ is the weighted average of $\kappa_{\text{claims},i}$ across depth bins, with weights proportional to the number of claims per bin. Table~\ref{tab: kappa claims} reports the resulting lookup table.
+
+\begin{table}[!htbp]
+\centering
+\begin{threeparttable}
+\caption{Claims-calibrated $\kappa$ from 82{,}650 NFIP non-residential claims, grouped by number of stories and insurance coverage band. $\kappa_\text{std}$ is the weighted standard deviation across depth bins. All cells use 6--7 depth bins with $n \geq 20$ claims each.}
+\label{tab: kappa claims}
+\begin{tabular}{llccr}
+\toprule
+Stories & Coverage band & $\kappa$ & $\kappa_\text{std}$ & $N$ \\
+\midrule
+1-storey & $<$\$50\,K      & 1.641 & 0.324 & 23{,}225 \\
+1-storey & \$50--200\,K    & 1.050 & 0.203 & 17{,}240 \\
+1-storey & \$200--500\,K   & 0.857 & 0.199 &  8{,}686 \\
+1-storey & $>$\$500\,K     & 0.835 & 0.292 &  3{,}322 \\
+\midrule
+2-storey & \$50--200\,K    & 0.931 & 0.134 &  5{,}607 \\
+2-storey & \$200--500\,K   & 0.696 & 0.053 &  4{,}263 \\
+2-storey & $>$\$500\,K     & 0.641 & 0.110 &  2{,}181 \\
+\midrule
+$\geq$3  & \$50--200\,K    & 0.617 & 0.171 &  4{,}000 \\
+$\geq$3  & \$200--500\,K   & 0.543 & 0.055 &  2{,}758 \\
+$\geq$3  & $>$\$500\,K     & 0.534 & 0.087 &  1{,}557 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item \textit{Note.} Two additional cells ($2$-storey $\times$ $<$\$50\,K: $N = 5{,}179$; $\geq$3-storey $\times$ $<$\$50\,K: $N = 4{,}632$; 9{,}811 claims in total) are excluded from this lookup as they yield $\kappa$ estimates inconsistent with the monotonic pattern ($\kappa$ decreasing with number of stories) that holds for all other coverage bands. This reflects high variance and unreliable stories classification for small non-residential buildings in the $<$\$50\,K coverage band (e.g., mixed mezzanine/loft structures, small outbuildings, and accessory commercial units where the stories field is ambiguous). The 72{,}839 claims in the ten cells above support the final lookup; the 9{,}811 excluded claims are retained in the 82{,}650 calibration total for dataset-size transparency but do not enter the $\kappa$ assignment pipeline.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Two regularities emerge. First, $\kappa$ is monotonically decreasing in the number of stories: at the $>$\$500\,K coverage band, $\kappa$ falls from 0.84 (1-storey) to 0.64 (2-storey) to 0.53 ($\geq$3-storey). This is physically expected: multi-storey buildings concentrate damageable area above the flood line. Second, $\kappa$ decreases with coverage within each storey group, consistent with the interpretation that higher-value buildings have better construction and site preparation.
+
+The NFIP non-residential sample covers small and medium commercial buildings (median coverage \$50\,K). Large corporate facilities typically exceed \$500\,K in replacement value. To bridge this gap without relying on corporate loss disclosures, we extrapolate the observed log-linear relationship between $\kappa$ and coverage to \$5\,M (a representative corporate facility scale), yielding a coverage-gradient resilience factor:
+
+\begin{equation}
+    \rho_{\text{gradient}} \;=\;
+    \frac{\hat{\kappa}(\$5\text{M})}{\kappa_{\text{claims}}(>\$500\text{K})}
+    \;\approx\; 0.25
+    \label{eq: rho gradient}
+\end{equation}
+
+The total sector adjustment for a corporate-scale facility is:
+
+\begin{equation}
+    \kappa_{\text{total}} \;=\;
+    \kappa_{\text{claims}}(\text{stories, coverage})
+    \;\times\;
+    \rho_{\text{gradient}}
+    \label{eq: kappa total}
+\end{equation}
+
+For a typical single-storey industrial facility ($\kappa_{\text{claims}} = 0.84$, $\rho = 0.25$), this yields $\kappa_{\text{total}} \approx 0.21$, consistent with the 0.02--0.15 range found in prior corporate case studies~\cite{merz2010review, huizinga2017global} for diversified operators and with the 0.4--0.7 range reported for small enterprises.
+
+The sector adjustment $\kappa$ as defined here is a single aggregate multiplier applied to the structural damage ratio. In practice, flood losses within a building portfolio are distributed unevenly across structural elements, non-structural components (MEP systems, partitions, finishes), and building contents~\cite{forte2025flash}. Non-structural and content losses can dominate total repair costs at moderate inundation depths, particularly for commercial and light-industrial buildings~\cite{pistrika2014flood}. Separating these components would require a more granular vulnerability model than the NFIP data can support at scale; we acknowledge this as a direction for future refinement.
+
+Both components of $\kappa_{\text{total}}$ are derived entirely from NFIP claims data: $\kappa_{\text{claims}}$ from 82{,}650 non-residential claims, and $\rho_{\text{gradient}}$ from the coverage gradient within the same sample. No corporate loss disclosures enter the calibration. The 24-company validation reported in Section~\ref{sec: event study} is therefore fully out-of-sample.
+
+The uncertainty in $\kappa_{\text{total}}$ propagates from two sources: within-cell estimation variance (reported as $\kappa_\text{std}$ in Table~\ref{tab: kappa claims}, ranging from 0.05 to 0.32) and the extrapolation uncertainty in $\rho_{\text{gradient}}$. Bootstrap resampling of the non-residential claims dataset (1{,}000 replications) yields a 90\% confidence interval of approximately $\pm$0.06 on $\kappa_{\text{total}}$ for the main corporate-scale cell (1-storey, $>\$500$K), or about $\pm$30\% relative uncertainty. This uncertainty is substantially smaller than the cross-company variability in the 24-company validation (interquartile range of the predicted-to-actual ratio: $0.6$--$1.4\times$), suggesting that individual asset and event factors dominate over parameter estimation error.
+
+\paragraph{Indirect losses (OpEx)}
+Following the temporal loss structure of \cite{hallegatte2015indirect}, we decompose total climate losses into direct capital expenditure (CapEx) losses and indirect operational expenditure (OpEx) losses. The OpEx component captures business interruption, supply chain disruption, workforce displacement, and increased insurance premiums. The inclusion of indirect losses is empirically motivated: post-disaster assessments consistently find that business interruption accounts for 15--40\% of total corporate flood losses~\cite{hallegatte2015indirect, hallegatte2010economics}, a share that rises for companies with concentrated single-site operations or complex supply chains. Ignoring OpEx therefore produces a systematic downward bias in event-scale credit risk estimates for the most exposed companies. We model the OpEx-to-CapEx ratio as a function of damage severity:
+\begin{equation*}
+    r_{\text{OpEx}}(\DF) = r_{\text{base}} + r_{\text{scale}} \cdot \DF^{\alpha}
+    %\label{eq: opex ratio}
+\end{equation*}
+where $r_{\text{base}}$ represents baseline indirect costs, $r_{\text{scale}}$ captures nonlinear amplification at high damage, and $\alpha > 1$ ensures convexity. Monthly OpEx follows a geometric decay with parameter $q \in (0.6, 0.8)$ over a recovery horizon of $N = 12$--$24$ months~\cite{hallegatte2010economics}:
+
+\begin{equation*}
+    \text{OpEx}_k = \text{OpEx}_{\text{total}} \cdot q^k \cdot \frac{1 - q}{1 - q^{N+1}}, \quad k = 0, 1, \ldots, N-1
+    %\label{eq: opex monthly}
+\end{equation*}
+
+The total expected climate loss entering the credit translation module is:
+\begin{equation}
+    \ECL = \underbrace{\kappa \cdot \DF(h, \tau) \cdot V \cdot (1 - \iota)}_{\text{CapEx (net of insurance)}} + \underbrace{\text{CapEx}_{\text{net}} \cdot r_{\text{OpEx}}(\DF)}_{\text{OpEx}}
+    \label{eq: total ecl}
+\end{equation}
+where $V$ is the replacement value of exposed assets and $\iota$ is the insurance coverage ratio.

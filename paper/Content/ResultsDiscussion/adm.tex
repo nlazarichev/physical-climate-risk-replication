@@ -1,0 +1,140 @@
+We apply the calibrated framework to Archer Daniels Midland (ADM), one of the world's largest agricultural processors and food ingredient providers. ADM operates extensive grain processing and storage facilities across the US Midwest, a region highly susceptible to seasonal flooding. This example demonstrates the full pipeline: asset-level exposure assessment, calibrated damage estimation with duration effects, sector adjustment ($\kappa$), CapEx/OpEx decomposition, and credit risk translation.
+
+\subsection{Asset-level exposure}
+
+ADM's 10-K filings identify 12 major grain processing and storage facilities in flood-prone areas of the US Midwest (Illinois, Iowa, Missouri, Minnesota). Using FEMA flood zone maps and the National Flood Hazard Layer, we assign each facility a 100-year flood depth estimate based on its geographic coordinates. Facility replacement values are estimated from ADM's reported property, plant, and equipment by segment, pro-rated by processing capacity.
+
+\begin{table}[h!]
+\centering
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Facility cluster} & \textbf{Facilities} & \textbf{Est.\ value (\$M)} & \textbf{Flood depth (m)} & \textbf{Duration (h)} \\
+\hline
+Illinois River corridor & 4 & 1,200 & 1.5 & 72 \\
+Mississippi River (Iowa) & 3 & 800 & 2.0 & 120 \\
+Ohio River (Indiana) & 3 & 600 & 1.0 & 48 \\
+Missouri River & 2 & 400 & 1.8 & 96 \\
+\hline
+\textbf{Total exposed} & \textbf{12} & \textbf{3,000} & & \\
+\hline
+\end{tabular}}
+\caption{ADM facility clusters in flood-prone Midwest locations with estimated 100-year flood parameters. Values estimated from 10-K reported PP\&E.}
+\label{tab: adm facilities}
+\end{table}
+
+\subsection{Calibrated damage estimation}
+
+For each facility cluster, we compute the damage ratio using the calibrated duration-dependent Richards function (Eq.~\ref{eq: duration richards}) with the parameters from Table~\ref{tab: calibrated params}:
+
+\begin{table}[h!]
+\centering
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Facility cluster} & \textbf{DR (calibrated)} & \textbf{DR (JRC)} & \textbf{$\kappa$} & \textbf{CapEx loss (\$M)} \\
+\hline
+Illinois River ($h=1.5$m, $\tau=72$h) & 0.50 & 0.50 & 0.21 & 126.0 \\
+Mississippi River ($h=2.0$m, $\tau=120$h) & 0.66 & 0.57 & 0.21 & 110.7 \\
+Ohio River ($h=1.0$m, $\tau=48$h) & 0.38 & 0.40 & 0.21 & 47.8 \\
+Missouri River ($h=1.8$m, $\tau=96$h) & 0.59 & 0.54 & 0.21 & 50.0 \\
+\hline
+\textbf{Total CapEx} & & & & \textbf{334.5} \\
+\hline
+\end{tabular}}
+\caption{Calibrated damage ratios for ADM flood-exposed facilities. DR (calibrated) uses the duration-dependent Richards function; DR (JRC) uses standard JRC curves. $\kappa_{\text{total}} = 0.21$ from the claims-based calibration for single-storey industrial buildings (Table~\ref{tab: kappa claims}, Eq.~\ref{eq: kappa total}).}
+\label{tab: adm calibrated}
+\end{table}
+
+The calibrated model produces systematically higher damage ratios than JRC -- by 1--9 percentage points -- because JRC curves lack a duration parameter. For the Mississippi River cluster, where flooding persists for approximately 120 hours, the gap is largest: DR = 0.66 (calibrated) vs.\ 0.57 (JRC), a 16\% increase attributable to the duration effect.
+
+We apply $\kappa_{\text{total}} = 0.21$, obtained directly from the claims-based calibration (Section~\ref{ssec: sector}) for single-storey buildings in the $>$\$500\,K coverage band: $\kappa_{\text{claims}} = 0.835 \times \rho_{\text{gradient}} = 0.25$, yielding $\kappa_{\text{total}} = 0.21$. No expert adjustment is applied; the same $\kappa$ is used for all ADM facilities.
+
+\subsection{OpEx and total loss}
+
+Following Eq.~\ref{eq: total ecl}, we compute indirect losses using $r_{\text{OpEx}}(\DF) = 0.15 + 0.8 \cdot \DF^{1.5}$ with $\iota = 0.6$ (60\% insurance coverage). ADM does not publicly disclose facility-level property insurance terms; 60\% is a representative assumption for large US agri-industrial companies, consistent with industry surveys reporting typical property coverage ratios of 50--80\% for Fortune~500 firms~\cite{swiss2024global}. A sensitivity analysis over $\iota \in \{0.4, 0.6, 0.8\}$ is provided in Appendix~\ref{app: insurance sensitivity}.
+
+\begin{align*}
+\text{CapEx}_{\text{net}} &= 334.5 \times (1 - 0.6) = \$133.8\text{M} \\
+r_{\text{OpEx}} &\approx 0.15 + 0.8 \times 0.11^{1.5} \approx 0.18 \\
+\text{OpEx} &= 133.8 \times 0.18 = \$24.1\text{M} \\
+\ECL_{\text{total}} &= 133.8 + 24.1 = \$157.9\text{M per event}
+\end{align*}
+
+\subsection{Credit risk translation}
+
+Main financial parameters (FY2023):
+\begin{itemize}
+    \item Total debt: \$9.6 billion; average interest rate: 6.7\%; interest expenses: \$643M
+    \item Total assets: \$53.3 billion; EBIT: \$3.539 billion
+    \item Recovery rate: 0.4
+\end{itemize}
+
+Baseline $\ICR = 3539 / 643 = 5.50$, placing ADM in the A3/A- category (spread 1.29\%). Using the seasonal flood probability profile (peak $\sim$8\% during March--June):
+\[
+\ECL_{\text{annual}} = \sum_{m=1}^{12} p_m \times \ECL_{\text{event}} \approx 0.18 \times 157.9 = \$28.4\text{M}
+\]
+
+The climate-adjusted $\ICR_C = (3539 - 28.4) / 643 = 5.46$, remaining within A3/A-. The relative $\Delta PD / PD$ is approximately 0.8\%.
+
+\subsection{Sensitivity to the $\tau$ assignment}
+\label{ssec: tau sensitivity}
+
+Because event-level $\tau$ is the most uncertain hazard input (Section~\ref{sec: discussion}), we propagate $\tau \pm 50\%$ through the ADM pipeline as the recommended sensitivity range. Holding depth, $\kappa$, and insurance coverage fixed at their baseline values, the calibrated damage ratios and gross CapEx losses scale as follows:
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+& \multicolumn{3}{c|}{\textbf{Damage ratio (DF)}} & \multicolumn{3}{c|}{\textbf{Gross CapEx (\$M)}} \\
+\textbf{Cluster} & $0.5\tau$ & $\tau$ & $1.5\tau$ & $0.5\tau$ & $\tau$ & $1.5\tau$ \\
+\hline
+Illinois River & 0.42 & 0.51 & 0.58 & 105 & 128 & 145 \\
+Mississippi River & 0.55 & 0.66 & 0.72 & 93 & 111 & 121 \\
+Ohio River & 0.32 & 0.38 & 0.44 & 40 & 48 & 55 \\
+Missouri River & 0.49 & 0.60 & 0.66 & 41 & 50 & 56 \\
+\hline
+\textbf{Total gross} & & & & \textbf{280} & \textbf{338} & \textbf{378} \\
+\hline
+\end{tabular}
+\caption{Sensitivity of ADM facility-cluster damage estimates to a $\pm 50\%$ shift in the assigned event duration $\tau$. Gross CapEx applies $\kappa_{\text{total}} = 0.21$ but is shown before insurance offset. The total spans roughly $-17\%$ to $+12\%$ around the baseline, comparable to the insurance-coverage sensitivity reported in Section~\ref{ssec: insurance sensitivity} and substantially smaller than the cross-company validation dispersion (IQR 0.6--1.4$\times$).}
+\label{tab: tau sensitivity}
+\end{table}
+
+\subsection{Calibrated vs.\ crude estimate}
+
+A naive estimate based on expert judgement would place the per-event loss at approximately \$200M. The calibrated approach yields \$157.9M -- within 21\% -- but provides four advantages:
+\begin{itemize}
+    \item decomposes the loss by facility cluster, identifying the Illinois River corridor as the highest-risk location;
+    \item separates CapEx from OpEx, revealing that 15\% of the net loss comes from indirect operational disruption;
+    \item quantifies the insurance offset: 60\% coverage reduces the credit-relevant loss from \$334.5M to \$157.9M;
+    \item provides a principled, reproducible basis grounded in 295{,}637 calibration observations and 82{,}650 non-residential claims rather than expert judgement.
+\end{itemize}
+
+\subsection{Insurance coverage sensitivity}
+\label{ssec: insurance sensitivity}
+
+The baseline ADM analysis assumes an insurance coverage ratio of $\iota = 0.6$ (Section~\ref{sec: adm}). Because ADM does not publicly disclose facility-level property insurance terms, we report the sensitivity of key outputs to this assumption. Table~\ref{tab: insurance sensitivity} varies $\iota$ from 0.4 (conservative, lower coverage) to 0.8 (high coverage, typical for well-insured Fortune~500 operators).
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$\iota$ & \textbf{CapEx$_{\text{net}}$ (\$M)} & $r_{\text{OpEx}}$ & \textbf{OpEx (\$M)} & $\ECL$ (\$M) & $\ICR_C$ \\
+\hline
+0.4 & 200.7 & 0.18 & 36.1 & 236.8 & 5.44 \\
+0.5 & 167.2 & 0.18 & 30.1 & 197.4 & 5.45 \\
+\textbf{0.6} & \textbf{133.8} & \textbf{0.18} & \textbf{24.1} & \textbf{157.9} & \textbf{5.46} \\
+0.7 & 100.4 & 0.18 & 18.1 & 118.4 & 5.47 \\
+0.8 & 66.9 & 0.18 & 12.0 & 78.9 & 5.48 \\
+\hline
+\end{tabular}
+\caption{Sensitivity of ADM loss estimates to the insurance coverage ratio $\iota$. The bold row corresponds to the baseline assumption. $r_{\text{OpEx}}$ is insensitive to $\iota$ because it depends on $\DF_{\text{sector}}$, not on the net loss. $\ICR_C$ varies only modestly because ADM's EBIT (\$3.539\,B) is large relative to the annualised expected loss.}
+\label{tab: insurance sensitivity}
+\end{table}
+
+The per-event $\ECL$ ranges from \$79\,M ($\iota = 0.8$) to \$237\,M ($\iota = 0.4$), a factor of $3\times$, while the climate-adjusted $\ICR_C$ remains within the A3/A-band across all scenarios. The credit risk conclusion -- that a 100-year flood event does not trigger a rating transition for ADM -- is robust to the insurance assumption. The \emph{magnitude} of the expected loss, however, is sensitive to $\iota$ and should be interpreted with the appropriate uncertainty in downstream applications.

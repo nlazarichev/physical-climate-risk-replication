@@ -1,0 +1,148 @@
+    \documentclass[preprint,12pt,authoryear]{elsarticle}
+
+\usepackage{graphicx}
+\usepackage{amsfonts,amsmath}
+\usepackage{amssymb,amsthm}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\usepackage{dsfont}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{threeparttable}
+%\usepackage{refcheck}
+% TikZ removed — figures pre-rendered as PNG for faster compilation
+
+% custom commands
+\newcommand{\PD}{\text{PD}}
+\newcommand{\DF}{\text{DF}}
+\newcommand{\CL}{\text{CL}}
+\newcommand{\ECL}{\mathbb{E}[\text{CL}]}
+\newcommand{\ICR}{\text{ICR}}
+\newcommand{\EBIT}{\text{EBIT}}
+\newcommand{\IE}{\text{IE}}
+\newcommand{\MC}{\text{MC}}
+\newcommand{\FS}{\text{FS}}
+\newcommand{\RR}{\text{RR}}
+
+\tolerance = 3000
+
+\journal{Natural Hazards Research}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{A duration-dependent flood depth-damage function calibrated using FEMA NFIP claims from three U.S. hurricanes}
+
+\author[airi]{Ivan Novikov\corref{cor1}\fnref{fn1}}
+\ead{ivan.novikov@iccda.io}
+\author[airi]{Nikita Lazarichev\fnref{fn1}}
+\author[airi]{Denis Ayvazov}
+\author[airi]{Aleksandr Popov}
+\author[msu]{Yuriy Dorn}
+\author[msu]{Roman Sultimov}
+\author[interdata]{Aleksandr Volkov}
+\author[msu]{Andrey Osipsov}
+\author[interdata]{Yury~Maximov}
+
+\cortext[cor1]{Corresponding author}
+\fntext[fn1]{Ivan Novikov and Nikita Lazarichev contributed equally to this work.}
+
+\address[airi]{Moscow Research Institute of Artificial Intelligence, Moscow, Russia}
+\address[msu]{Moscow State University, Moscow, Russia}
+\address[interdata]{Interdata, Astana, Kazakhstan}
+
+\begin{abstract}
+\input{Content/abstract}
+\end{abstract}
+
+\begin{keyword}
+flood duration \sep damage function \sep FEMA NFIP \sep flood vulnerability \sep hazard loss assessment \sep non-residential assets
+\end{keyword}
+
+\end{frontmatter}
+
+\linenumbers
+
+
+
+\section{Introduction}
+\label{sec: intro}
+\input{Content/introduction}
+
+\section{Related Work}
+\label{sec: lit review}
+\input{Content/litReview}
+
+\input{Content/symbols}
+
+\section{Framework and Methodology}
+\label{sec: methods}
+\input{Content/Methods/framework}
+
+\subsection{Parametric Damage Function} \label{ssec: damage function}
+\input{Content/Methods/damage_function}
+
+\subsection{Duration-Dependent Extension} \label{ssec: duration}
+\input{Content/Methods/duration_extension}
+
+\subsection{Sector Adjustment and Loss Decomposition} \label{ssec: sector}
+\input{Content/Methods/sector_adjustment}
+
+\subsection{Credit Risk Translation} \label{ssec: pd shift}
+\input{Content/Methods/pd_translation}
+
+\section{Empirical Calibration and Validation}
+\label{sec: empirical}
+\input{Content/empirical_calibration}
+
+\section{Application: Flood Risk for Archer Daniels Midland} \label{sec: adm}
+\input{Content/ResultsDiscussion/adm}
+
+\section{Validation: Out-of-Sample Transferability to Non-Residential Assets} \label{sec: event study}
+\input{Content/ResultsDiscussion/harvey_event_study}
+
+\section{Discussion} \label{sec: discussion}
+\input{Content/ResultsDiscussion/discussion}
+
+\section{Conclusion} \label{sec: conclusion}
+\input{Content/conclusion}
+
+%% Declarations
+\section*{CRediT authorship contribution statement}
+\textbf{Ivan Novikov:} Conceptualization, Methodology, Writing --- original draft, Writing --- review \& editing.
+\textbf{Nikita Lazarichev:} Data curation, Formal analysis, Software, Validation, Visualization, Writing --- original draft, Writing --- review \& editing.
+\textbf{Denis Ayvazov:} Investigation, Visualization.
+\textbf{Aleksandr Popov:} Software, Data curation.
+\textbf{Yuriy Dorn:} Methodology, Supervision.
+\textbf{Roman Sultimov:} Formal analysis.
+\textbf{Aleksandr Volkov:} Investigation.
+\textbf{Andrey Osipsov:} Resources.
+\textbf{Yury Maximov:} Supervision, Writing --- review \& editing.
+Ivan Novikov and Nikita Lazarichev contributed equally to this work.
+
+\section*{Declaration of Competing Interests}
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\section*{Ethics statement}
+This study used publicly available, de-identified flood insurance claims data from the FEMA National Flood Insurance Program and publicly disclosed corporate financial data. No ethics approval was required.
+
+\section*{Funding}
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+\section*{Data availability}
+FEMA NFIP claims data are publicly available through OpenFEMA (\url{https://www.fema.gov/openfema}). Calibration code, processed datasets, and analysis notebooks for end-to-end reproduction of all tables and figures are available at \url{https://github.com/[OWNER]/physical-climate-risk-replication} [GitHub URL to be added prior to submission] and permanently archived at Zenodo [DOI to be added upon acceptance].
+
+\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
+During the preparation of this work, the authors used OpenAI ChatGPT and Codex to improve the readability, structure, and language of the manuscript and to support code review and refactoring for reproducible analyses. After using these tools, the authors reviewed and edited the content as needed and take full responsibility for the content of the published article.
+
+\clearpage
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{Common/bibliography}
+
+\end{document}

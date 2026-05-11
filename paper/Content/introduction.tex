@@ -1,0 +1,23 @@
+Flood damage assessment is a cornerstone of physical climate risk quantification for financial institutions. The Basel Committee on Banking Supervision~\cite{basel2021a, basel2021b} identifies data scarcity  --  particularly the lack of paired hazard-loss observations for damage function calibration  --  as the single most critical gap in the physical risk assessment pipeline. Existing depth-damage functions, such as those maintained by the Joint Research Centre~\cite{huizinga2017global} and the US Army Corps of Engineers~\cite{usace2003}, treat damage as an instantaneous function of water depth. These functions underpin widely used platforms including CLIMADA~\cite{aznar2019climada} and form the basis for regulatory stress tests~\cite{ecb2025stress}. Yet they ignore a physically obvious variable: the duration of inundation. A flood that recedes in hours causes fundamentally different damage from one that persists for weeks, through material saturation, mould growth, electrical system failure, and structural weakening.
+
+This omission has measurable consequences. Using 295{,}637 cleaned FEMA NFIP claims from three major US hurricanes, we show that standard JRC depth-damage functions systematically underpredict damage by about 15 percentage points for prolonged events -- a bias that propagates directly into credit risk estimates for flood-exposed companies.
+
+\subsection{Contribution}
+
+This paper makes three contributions:
+
+\begin{enumerate}
+    \item We extend the generalised logistic (Richards) damage function with a \textit{duration-dependent formulation} in which the curve's inflection point, onset speed, and asymmetry depend continuously on hazard duration. We calibrate the seven parameters jointly on 295{,}637 FEMA NFIP flood insurance claims spanning Hurricanes Sandy (36\,h), Harvey (288\,h), and Katrina (120\,h). The key empirical finding is that duration primarily affects damage through inflection point shift ($\lambda_a = 0.49$), while curve shape parameters are not significantly non-zero in the three-event calibration ($\lambda_Q \approx 0$, $\delta_\nu \approx 0$); this conclusion is, however, limited by the fact that the calibration spans only three distinct event-level duration values.
+
+    \item We introduce a \textit{sector adjustment multiplier} $\kappa$ calibrated empirically from 82{,}650 NFIP non-residential claims, grouped by number of stories and insurance coverage. A coverage-gradient extrapolation bridges NFIP-scale commercial buildings to corporate-scale facilities without relying on corporate loss disclosures. Out-of-sample validation on 24 companies across six flood events yields a median predicted-to-actual ratio of $0.90\times$ (23/24 within 0.4--2.5$\times$).
+
+    \item We demonstrate the \textit{full calibrated pipeline} on Archer Daniels Midland's 12 flood-exposed Midwest facilities, producing facility-level loss estimates with duration-dependent damage ratios, CapEx/OpEx decomposition, insurance offsets, and credit risk translation via an interest coverage ratio approach. The framework is modular: the credit risk translation module can employ alternative models (including the Merton structural model~\cite{merton1974pricing}) without changing the damage assessment.
+\end{enumerate}
+
+\subsection{Data requirements}
+
+The framework requires: (i) asset locations and replacement values, obtainable from company filings; (ii) local flood hazard parameters (depth, duration), available from FEMA flood maps and hydrological models; (iii) financial statements (EBIT, debt, interest expenses) for credit risk translation. The damage function parameters are provided by our calibration and do not require company-specific fitting.
+
+\subsection{Paper organisation}
+
+Section~\ref{sec: lit review} reviews damage function literature and the calibration data gap. Section~\ref{sec: methods} presents the framework architecture, the duration-dependent Richards formulation, sector adjustment, and credit risk translation. Section~\ref{sec: empirical} describes the FEMA dataset, joint calibration, and four validation tests. Section~\ref{sec: adm} applies the calibrated pipeline to ADM. Section~\ref{sec: event study} presents the Hurricane Harvey event study. Section~\ref{sec: discussion} discusses findings and limitations. Section~\ref{sec: conclusion} concludes.
