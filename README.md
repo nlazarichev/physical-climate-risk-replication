@@ -150,3 +150,26 @@ output, (b) per-stage row counts, and (c) the deltas between the published-paper
 parameters (Mar 2026 FEMA snapshot, 317,943 claims) and this archive's canonical
 fit (May 2026 snapshot, 295,637 claims). The qualitative result is preserved;
 specific numerical values differ because the FEMA database has been updated.
+
+## Internal documents
+
+The `internal/` directory contains co-author–only working notes:
+- `MEMO_TO_COAUTHORS.md` — methodology audit notes circulated during revision
+- `derived_results_recompute_TODO.md` — internal checklist of downstream items
+
+These are kept in the repo for traceability but are **not required for reproduction**;
+all reproduction-relevant information is in `README.md`, `REPLICATION_RESULTS.md`,
+and `params/PROVENANCE.md`.
+
+## Verifying frozen data integrity
+
+Raw data files are pinned by SHA256 in `data/raw/SHA256SUMS`. To verify a fresh
+clone matches the canonical snapshot used for the published calibration:
+
+```bash
+cd data/raw && shasum -a 256 -c SHA256SUMS
+```
+
+All five files should report `OK`. If any differs, OpenFEMA may have backfilled
+additional claims since the 2026-05-09 snapshot; the calibration script will
+still run, but downstream numbers may shift slightly.
