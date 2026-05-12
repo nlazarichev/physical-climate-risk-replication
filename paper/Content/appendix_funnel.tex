@@ -1,0 +1,53 @@
+% Appendix A — Data filtering funnel (raw API to fit)
+\section{Data filtering funnel: from OpenFEMA pull to calibration fit}
+\label{app: funnel}
+
+The flood-damage calibration starts from the raw OpenFEMA API pull and applies a documented chain of filters. Table~\ref{tab: funnel} accounts for every claim from the 445{,}594 records initially downloaded to the 295{,}383 records used in the joint binned fit. No filter is applied outside this table.
+
+\begin{table}[h!]
+\centering
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|r|r|r|r|r|}
+\hline
+\textbf{Stage} & \textbf{Sandy} & \textbf{Harvey} & \textbf{Katrina} & \textbf{Total} & \textbf{Cumul.\ \%} \\
+\hline
+\textbf{1. Raw OpenFEMA pull} & 144{,}848 & 92{,}398 & 208{,}348 & \textbf{445{,}594} & 100.0 \\
+\hline
+2a. Drop: \texttt{waterDepth} missing/zero & $-$48{,}253 & $-$27{,}297 & $-$63{,}485 & $-$139{,}035 & 68.8 \\
+2b. Drop: zero total payout (after 2a) & $-$3{,}916 & $-$1{,}265 & $-$3{,}496 & $-$8{,}677 & 66.8 \\
+2c. Drop: zero total coverage (after 2a,b) & 0 & $-$5 & $-$10 & $-$15 & 66.8 \\
+2d. Drop: $\text{DR} > 1.5$ outlier (after 2a,b,c) & $-$396 & $-$189 & $-$1{,}645 & $-$2{,}230 & 66.3 \\
+\hline
+\textbf{2. Valid after Table~\ref{tab: fema data} filter} & \textbf{92{,}283} & \textbf{63{,}642} & \textbf{139{,}712} & \textbf{295{,}637} & \textbf{66.3} \\
+\hline
+3. Drop: depth $>$ event cap (4\,m S/H, 10\,m K) & $-$54 & $-$78 & $-$105 & $-$237 & 66.3 \\
+\hline
+\textbf{3. After per-event depth cap (\S\ref{ssec: joint calibration})} & \textbf{92{,}229} & \textbf{63{,}564} & \textbf{139{,}607} & \textbf{295{,}400} & \textbf{66.3} \\
+\hline
+4. Drop: bins with $<10$ claims (sparse) & $-$7 & $-$4 & $-$6 & $-$17 & 66.3 \\
+\hline
+\textbf{4. Used in joint binned fit} & \textbf{92{,}222} & \textbf{63{,}560} & \textbf{139{,}601} & \textbf{295{,}383} & \textbf{66.3} \\
+\hline
+\end{tabular}}
+\caption{Complete data filtering funnel from the OpenFEMA API pull to the records entering the joint Richards calibration. Each row reports the number of claims dropped at that stage, by event and in total, and the cumulative pass rate (\%) relative to the raw pull. Stage 2 implements the validity filter described in Table~\ref{tab: fema data} caption; stage 3 applies the per-event depth caps disclosed in Section~\ref{ssec: joint calibration}; stage 4 enforces the minimum-10-claims-per-bin rule. The largest drop (Stage 2a, $-$31.2\%) is structural: NFIP claims with a missing or zero \texttt{waterDepth} field cannot enter a depth-damage calibration because the depth coordinate is unobserved. This loss is not a cherry-picked exclusion --- it reflects the upper bound of usable claims in the OpenFEMA NFIP dataset for depth-based damage modelling.}
+\label{tab: funnel}
+\end{table}
+
+\paragraph{Interpretation of each drop stage}
+
+\textbf{Stage 2a (zero/missing \texttt{waterDepth}, $-$139{,}035 claims):} The OpenFEMA \texttt{waterDepth} field is filled by the adjuster at the time of the claim assessment. It is recorded as zero or null for: (i)~claims where the water did not reach a measurable level (sewer backup, surface-water seepage, dry-out claims); (ii)~claims processed before the depth field was systematically captured in older event records; and (iii)~claims where the adjuster simply did not log the depth. These claims are useful for total-loss accounting but cannot enter a calibration that conditions on depth.
+
+\textbf{Stage 2b (zero payout, $-$8{,}677 claims):} Claims that were filed but produced no payout --- typically denied claims, claims below the deductible, or claims where the realised coverage was zero. They carry no information about the depth--damage relationship.
+
+\textbf{Stage 2c (zero coverage, $-$15 claims):} A negligible number of records where the insurance coverage variables sum to zero. These are data-quality artefacts and removed for division safety.
+
+\textbf{Stage 2d (DR $>$ 1.5 outlier, $-$2{,}230 claims):} Claims where the realised payout exceeds 1.5$\times$ the policy coverage. These typically reflect replacement-cost-value provisions or Increased Cost of Compliance (ICC) riders that pay above the actual-cash-value ceiling; the resulting damage ratio is no longer a clean function of physical damage and is excluded from calibration. The 1.5 ceiling is the threshold used in the paper Table~\ref{tab: fema data} caption.
+
+\textbf{Stage 3 (per-event depth cap, $-$237 claims):} Sandy and Harvey are capped at 4\,m, Katrina at 10\,m, on the calibration step only. These caps lie at or above the 99.9th percentile of each event's depth distribution and exclude a small tail of extreme observations (likely adjuster-recorded placeholders or single-property anomalies) that would dominate the binned means at their depth bin. Section~\ref{ssec: joint calibration} discloses the cap.
+
+\textbf{Stage 4 (sparse bins, $-$17 claims):} After binning, any bin with fewer than 10 claims is excluded from the fit to prevent single observations from dominating the binned mean. Only 17 claims out of 295{,}400 fall into such bins, all in the deep tails.
+
+\paragraph{Reproducibility}
+
+The funnel above is generated from frozen raw files at \texttt{data/raw/} and reproduced end-to-end by \texttt{code/notebooks/unified\_calibration.py} in the replication archive. The raw files are pinned by SHA-256 in \texttt{data/raw/SHA256SUMS}, so any clone of the public repository can verify the exact OpenFEMA snapshot used (2026-05-09).
